@@ -1,0 +1,46 @@
+### PROVIDE absolute paths to all files
+### PROVIDE root path for the analysis; 
+base: "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/" 
+
+# gene TSS with locus info in the fourth column and corresponding eQTL summ stat file
+# locus info is expected to be of the format eg. FAM212B-AS1.ST7L__rs197374__P i.e. <locus name, no other special characters like ;() etc>__<lead snp rsid>__<primary P or secondary S>
+# the lead SNP rsid provided in the locus name will be plotted in the output figures
+trait1-leads: "{base}/data/*-selected.tsv"
+
+# gene TSS with locus info in the fourth column and corresponding eQTL summ stat file
+# locus info is expected to be of the format eg. FAM212B-AS1.ST7L__rs197374__P i.e. <locus name, no other special characters like ;() etc>__<lead snp rsid>__<primary P or secondary S>
+# the lead SNP rsid provided in the locus name will be plotted in the output figures
+selected-stats: "{base}/data/gene_eQTLs-selected.tsv"
+
+
+## UKBB reference vcf per chrom
+trait1-ref: "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/hg38/"
+# chrom field format expected in the reference vcf: "int" if eg. 1 and "chr" if starts with chr eg. chr1
+trait1-ref-format: "chr"
+# how much flanking the gwas lead SNP should the SuSiE interval be considered?
+# if there is a fifth column in the lead SNP bed file trait1-leads specifying window size in bp, that will be considered.
+# else, window size list below will be used as default to run for all signals. Multiple items in list mean each signal will be run with multiple windows:
+susie-window: [250000]
+
+## prep sh file template:
+prep-template: "{base}/scripts/dosage-template.sh"
+susie-template: "{base}/scripts/susie-template.sh"
+
+## If trait1 is case-control (cc) - just need beta and se. If not, we need maf, column name for N samples and fraction of cases
+##  If trait1 is quantitative (quant), sdY is likely not available. We'd need maf, column name for N samples
+trait1-info: {
+  gene_eQTLs: {
+          type: "quant",
+          beta: "beta",
+          p: "p_nominal",
+          effect: "ALT",
+          non_effect: "REF",
+          sdY: 1, ## insPIRE summary stats were after inv. normal transform to the phenotype
+          coverage: 0.95,
+          maxit: 10000,
+          min_abs_corr: 0.1,
+          s_threshold: 0.3,
+          number_signals_default: 10,
+          number_signals_high_s: 1        
+  }
+}

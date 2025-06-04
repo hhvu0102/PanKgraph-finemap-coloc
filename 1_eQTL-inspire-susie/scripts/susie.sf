@@ -1,0 +1,66 @@
+#to get locusVals list
+#echo "{" > config.json 
+#echo -e "\t""\"LOCUS\": [" >> config.json
+#(cd /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-region/ && ls *susie.sh) | sed 's/__250kb.susie.sh//g' | sed 's/gene_eQTLs__/\t\t"/g' | sed 's/$/",/g' >> config.json
+#echo -e "\t""]" >> config.json
+#echo "}" >> config.json
+# need to manually delete the last "," in config.json
+
+
+# to select regions
+#cd /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-region
+#conda activate snakemake
+#module purge
+#python /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/scripts/susie-regions.py --config /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/scripts/config.yaml
+#python /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/scripts/make_susie-sh.py --config /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/scripts/config.yaml
+
+import json
+# Load the configuration file
+configfile: "config.json"
+
+locusVals = config["LOCUS"]
+
+rule targets:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-region/gene_eQTLs__{locus}__250kb.susieprep.sh", locus = locusVals),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep/gene_eQTLs__{locus}__250kb.ukbb-dosages.tsv.gz", locus = locusVals),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-region/gene_eQTLs__{locus}__250kb.susie.sh", locus = locusVals),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep/gene_eQTLs__{locus}__250kb.results.log", locus = locusVals)
+
+#to get dosage files
+rule getDose:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-region/gene_eQTLs__{{locus}}__250kb.susieprep.sh", locus = locusVals)
+	output:
+		ukbb_dosage = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep/gene_eQTLs__{locus}__250kb.ukbb-dosages.tsv.gz",
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep"
+	shell:
+		"""
+		module load singularity/3.11.5
+		cd {params.outdir}
+		singularity exec /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/scripts/coloc.sif bash {input}
+		touch {output.ukbb_dosage}
+		"""
+
+
+rule susie:
+	input:
+		cmd = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-region/gene_eQTLs__{{locus}}__250kb.susie.sh", locus = locusVals),
+		ukbb_dosage = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep/gene_eQTLs__{{locus}}__250kb.ukbb-dosages.tsv.gz", locus = locusVals),
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep/gene_eQTLs__{locus}__250kb.results.log"
+	log: 
+		stdout="/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/logs/susie.{locus}.stdout",
+		stderr="/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/logs/susie.{locus}.stderr"
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/results/susie-prep"
+	shell:
+		"""
+		cd {params.outdir}
+		#module load R/4.3.1
+		module load singularity/3.11.5
+		touch {input.ukbb_dosage}
+		singularity exec /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_eQTL-inspire-susie/scripts/coloc.sif bash {input.cmd} > {log.stdout} 2> {log.stderr}
+		ln -s {log.stdout} {output}
+		"""

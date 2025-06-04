@@ -1,0 +1,51 @@
+### recommending using absolute paths to all files; code adapted from Dr. Arushi Varshey
+
+base: "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/" ### PROVIDE root path for the analysis; 
+
+# gwas lead SNPs with locus info in the fourth column
+# locus info is expected to be of the format eg. FAM212B-AS1.ST7L__rs197374__P i.e. <locus name, no other special characters like ;() etc>__<lead snp rsid>__<primary P or secondary S>
+# the lead SNP rsid provided in the locus name will be plotted in the output figures
+trait1-leads: "{base}/data/*.leads.bed" #this data was obtained from Supp Table S3 of https://www.nature.com/articles/s41586-021-03552-w
+                                        #name of file has to start with trait name, such as "t1d"
+
+# indexed GWAS summary stats directory, should contain tabix indexed GWAS summary stats for each trait
+# should have columns beta and se
+trait1-dir: "{base}/data/" #the original data used hg38
+
+## UKBB reference vcf per chrom
+trait1-ref: "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/hg38/"
+
+# chrom field format expected in the reference vcf: "int" if eg. 1 and "chr" if starts with chr eg. chr1
+trait1-ref-format: "chr"
+
+# how much flanking the gwas lead SNP should the SuSiE interval be considered?
+# if there is a fifth column in the lead SNP bed file trait1-leads specifying window size in bp, that will be considered.
+# else, window size list below will be used as default to run for all signals. Multiple items in list mean each signal will be run with multiple windows:
+susie-window: [250000]
+
+## prep sh file template:
+prep-template: "{base}/scripts/prep-template.sh"
+susie-template: "{base}/scripts/susie-template.sh"
+
+## if the SuSiE credible sets don't contain the intended signal lead SNP (fourth column of trait1-leads bed file), should those sets be dropped?
+# dropsets-if-not-contain-lead: True
+
+## If trait1 is case-control (cc) - just need beta and se. If not, we need maf, column name for N samples and fraction of cases
+##  If trait1 is quantitative (quant), sdY is likely not available. We'd need maf, column name for N samples
+trait1-info: {
+  t1d: {
+    type: "cc", ## type of study, cc or quant
+    beta: "beta", ## column name for beta in gwas summary stats
+    se: "standard_error", ## column name for se in gwas summary stats
+    p: "p_value", ## column name for pvalue in gwas summary stats
+    coverage: 0.95, ## SuSiE coverage 
+    r2_prune: 0.8, ## SuSiE r2.prune parameter
+    maxit: 10000, ## SuSiE max iterations
+    min_abs_corr: 0.1, ## SuSiE min_abs_corr
+    number_signals: 10, ## SuSiE L parameter for max signals
+    s_threshold: 0.3, ## s threshold above which L will be assigned to number_signals_high_s
+    number_signals_high_s: 1, ## SuSiE L parameter if s metric was higher than s_threshold
+    dropsets_if_no_proxy: 0.5 ## drop sets that don't contain either the marker SNP iteself or at least one proxy SNP r2>= this value 
+    }
+  }
+

@@ -1,0 +1,70 @@
+LOCUS = ["14q32__rs1350275__P__chr14-97772968-98272969", "16q23__rs8046043__P__chr16-80000126-80500127", "17q24__rs57209021__P__chr17-67918776-68418777", "2p24__rs1881146__P__chr2-12244667-12744668", "6q27__rs11756073__P__chr6-169798355-170298356", "ACOXL__rs567088138__P__chr2-111012970-111512971", "ADCY3__rs55893453__P__chr2-24666497-25166498", "AFF3__rs4490209__P__chr2-99900248-100400249", "AGO2__rs3802214__P__chr8-140356083-140856084", "AIRE__rs1055311__P__chr21-44039684-44539685", "AIRE__rs74203920__P__chr21-44044410-44544411", "AKAP11__rs238265__P__chr13-42106522-42606523", "BACH2__rs60649859__P__chr6-89894813-90394814", "BACH2__rs6908626__P__chr6-90046023-90546024", "BAD__rs663743__P__chr11-64090262-64590263", "BATF3__rs12128789__P__chr1-212429489-212929490", "BCL11A__rs12464462__P__chr2-60159280-60659281", "BCL11A__rs13034691__P__chr2-59739033-60239034", "BCL11A__rs77146844__P__chr2-59669648-60169649", "C1QTNF6__rs228963__P__chr22-36889907-37389908", "C1QTNF6__rs229527__P__chr22-36935444-37435445", "CAMK4__rs114378220__P__chr5-110980661-111480662", "CAMK4__rs72663304__P__chr5-111340741-111840742", "CAMSAP2__rs10920052__P__chr1-200601481-201101482", "CCR5__rs28607988__P__chr3-45621845-46121846", "CCR7__rs112401631__P__chr17-40358271-40858272", "CD226__rs1808094__P__chr18-69608789-70108790", "CD69__rs35954981__P__chr12-9475547-9975548", "CDKN1C__rs140215710__P__chr11-2631829-3131830", "CEL__rs541856133__P__chr9-132810937-133310938", "CENPW__6:126690257:AT:A__P__chr6-126119110-126619111", "CFTR__rs7795896__P__chr7-117196558-117696559", "COBL__rs34414436__P__chr7-50700794-51200795", "COLEC10__rs13259300__P__chr8-118820701-119320702", "CPE__rs2611211__P__chr4-165404286-165904287", "CTLA4__rs143829908__P__chr2-203405374-203905375", "CTLA4__rs231389__P__chr2-203520006-204020007", "CTLA4__rs231725__P__chr2-203625951-204125952", "CTLA4__rs78847176__P__chr2-203611220-204111221", "CTRB2__rs55993634__P__chr16-74952864-75452865", "CTSH__rs34593439__P__chr15-78692614-79192615", "CYP27B1__rs3809113__P__chr12-57204924-57704925", "DEXI__rs12927355__P__chr16-10850913-11350914", "DEXI__rs66718203__P__chr16-11084785-11584786", "DLK1__rs3783355__P__chr14-100592620-101092621", "DLK1__rs56994090__P__chr14-100590109-101090110", "EMSY__rs7936434__P__chr11-76332760-76832761", "FLI1__rs55836957__P__chr11-128048735-128548736", "FLI1__rs607703__P__chr11-128484278-128984279", "FUT2__rs601338__P__chr19-48453416-48953417", "GATA3__rs537544__P__chr10-7816418-8316419", "GLIS3__rs1574285__P__chr9-4033136-4533137", "GP2__rs4238595__P__chr16-20081768-20581769", "GPR183__rs9517712__P__chr13-99177578-99677579", "GSDMB__rs56750287__P__chr17-39656690-40156691", "HORMAD2__rs2074204__P__chr22-29758006-30258007", "HORMAD2__rs4820827__P__chr22-29831599-30331600", "IFIH1__rs2111485__P__chr2-162004025-162504026", "IFIH1__rs35337543__P__chr2-162029994-162529995", "IFIH1__rs35667974__P__chr2-162018126-162518127", "IFIH1__rs75671397__P__chr2-162032888-162532889", "IKZF1__rs7809377__P__chr7-50125027-50625028", "IKZF1__rs876039__P__chr7-50019214-50519215", "IKZF4__rs1701704__P__chr12-55768702-56268703", "IKZF4__rs71459332__P__chr12-55774893-56274894", "IKZF4__rs78865465__P__chr12-55790361-56290362", "IL10__rs3024493__P__chr1-206520622-207020623", "IL10__rs58579536__P__chr1-206322796-206822797", "IL10__rs77599401__P__chr1-206426163-206926164", "IL2__4:123235016:TTA:T__P__chr4-122063860-122563861", "IL27__rs231972__P__chr16-28277014-28777015", "IL27__rs34835__P__chr16-28237969-28737970", "IL27__rs7187776__P__chr16-28596323-29096324", "IL2RA__rs41295159__P__chr10-5856571-6356572", "IL2RA__rs61839660__P__chr10-5802733-6302734", "IL2RA__rs6602398__P__chr10-5790989-6290990", "IL2RA__rs706778__P__chr10-5806985-6306986", "IL2RA__rs77710246__P__chr10-5874318-6374319", "IL2RA__rs947474__P__chr10-6098487-6598488", "IL2__rs77516441__P__chr4-122072438-122572439", "IL7R__rs2303137__P__chr5-35645622-36145623", "INPP5B__rs12742756__P__chr1-37631744-38131745", "INS__rs10770143__P__chr11-1924036-2424037", "INS__rs689__P__chr11-1910993-2410994", "INS__rs7948458__P__chr11-1901599-2401600", "IRF1__rs766751473__P__chr5-132181070-132681071", "IRF2__rs12644686__P__chr4-184131747-184631748", "IRF4__rs1050979__P__chr6-160416-660417", "ITGB7__rs12232003__P__chr12-52949847-53449848", "ITGB8__rs7805218__P__chr7-20089177-20589178", "KLRG1__rs7301381__P__chr12-8721335-9221336", "LMO7__rs9573641__P__chr13-75479795-75979796", "MAPT__rs35327136__P__chr17-45160207-45660208", "NEURL4__rs61759532__P__chr17-7087071-7587072", "NEURL4__rs62062613__P__chr17-7488716-7988717", "NOTCH2__rs1493696__P__chr1-119712908-120212909", "NRP1__rs11009222__P__chr10-32835806-33335807", "NRP1__rs58763752__P__chr10-32426688-32926689", "PGM1__rs855330__P__chr1-63398217-63898218", "PRF1__rs78325861__P__chr10-70368732-70868733", "PRKCQ__rs11596750__P__chr10-6179853-6679854", "PRKD2__rs60652743__P__chr19-46452449-46952450", "PRKD2__rs71353922__P__chr19-46458038-46958039", "PRR15L__rs11651753__P__chr17-47701722-48201723", "PSMB2__rs574384__P__chr1-35372059-35872060", "PTPN22__rs150709401__P__chr1-113343257-113843258", "PTPN22__rs2476601__P__chr1-113584945-114084946", "PTPN2__rs2542162__P__chr18-12570900-13070901", "PTPN2__rs62097857__P__chr18-12607758-13107759", "PTPN2__rs80262450__P__chr18-12568922-13068923", "PTPRC__rs570794153__P__chr1-198379258-198879259", "RAD51B__rs2104047__P__chr14-68037699-68537700", "RASGRP1__rs35134214__P__chr15-38323119-38823120", "RBPJ__rs7668577__P__chr4-25871696-26371697", "RGS1__rs10801128__P__chr1-192296718-192796719", "RNLS__rs7068821__P__chr10-88041277-88541278", "RUNX3__rs10751776__P__chr1-24720251-25220252", "SEPT2__rs13018977__P__chr2-241088591-241588592", "SH2B3__rs3184504__P__chr12-111196803-111696804", "SH2B3__rs570074821__P__chr12-111239156-111739157", "SIRPG__rs2250268__P__chr20-1427094-1927095", "SIRPG__rs6043405__P__chr20-1384897-1884898", "SKAP2__rs17323934__P__chr7-26614710-27114711", "STAT4__rs10931480__P__chr2-190839320-191339321", "STAT4__rs7423529__P__chr2-190888304-191388305", "TAGAP__rs182429__P__chr6-158798541-159298542", "TNFAIP3__rs142761146__P__chr6-137433370-137933371", "TNFAIP3__rs4548024__P__chr6-137594606-138094607", "TOX__rs1947178__P__chr8-58709617-59209618", "TYK2__rs12720356__P__chr19-10109298-10609299", "TYK2__rs34536443__P__chr19-10102441-10602442", "UBASH3A__rs12483582__P__chr21-42147659-42647660", "UBASH3A__rs1893592__P__chr21-42184956-42684957", "UBASH3A__rs9981624__P__chr21-42155612-42655613", "UBE2G1__rs9891059__P__chr17-4147410-4647411", "ZFP36L1__rs17106304__P__chr14-68543793-69043794"]
+
+rule targets:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-region/t1d__{locus}__250kb.susieprep.sh", locus = LOCUS),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.gwas.tsv", locus = LOCUS),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.ukbb-dosages.tsv", locus = LOCUS),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.ld.tsv", locus = LOCUS),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.results.log", locus = LOCUS)
+
+#to get dosage files
+rule getDose:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-region/t1d__{{locus}}__250kb.susieprep.sh", locus = LOCUS)
+	output:
+		ukbb_dosage = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.ukbb-dosages.tsv",
+		gwas = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.gwas.tsv"
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep"
+	shell:
+		"""
+		module load singularity/3.11.5
+		cd {params.outdir}
+		singularity exec /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/scripts/coloc.sif bash {input}
+		touch {output.ukbb_dosage}
+		touch {output.gwas}
+		"""
+
+rule makeLD:
+	input:
+		gwas = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{{locus}}__250kb.gwas.tsv", locus = LOCUS),
+		ukbb_dosage = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{{locus}}__250kb.ukbb-dosages.tsv", locus = LOCUS)
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep",
+		locus = lambda wildcards: wildcards.locus
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.ld.tsv"
+	shell:
+		"""
+		cd {params.outdir}
+			
+		module load singularity/3.11.5
+		singularity exec /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/scripts/coloc.sif /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/scripts/make-ld-mat.R --trait1 {input.gwas} --prefix t1d__{params.locus}__250kb --trait1_ld {input.ukbb_dosage}
+		touch {output}
+		"""
+
+rule susie:
+	input:
+		cmd = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-region/t1d__{{locus}}__250kb.susie.sh", locus = LOCUS),
+		gwas = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{{locus}}__250kb.gwas.tsv", locus = LOCUS),
+		ukbb_dosage = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{{locus}}__250kb.ukbb-dosages.tsv", locus = LOCUS),
+		ld = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{{locus}}__250kb.ld.tsv", locus = LOCUS)
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep/t1d__{locus}__250kb.results.log"
+	log: 
+		stdout="/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/logs/susie.{locus}.stdout",
+		stderr="/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/logs/susie.{locus}.stderr"
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/results/hg38/susie-prep"
+	shell:
+		"""
+		cd {params.outdir}
+		
+		module load singularity/3.11.5
+		touch {input.gwas}
+		touch {input.ukbb_dosage}
+		touch {input.ld}
+		singularity exec /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/1_t1d-susie/scripts/coloc.sif bash {input.cmd} > {log.stdout} 2> {log.stderr}
+		ln -s {log.stdout} {output}
+		"""
