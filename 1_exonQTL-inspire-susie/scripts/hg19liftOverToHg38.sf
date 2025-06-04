@@ -1,0 +1,150 @@
+CHROM = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"]
+ANALYSIS = ["Exons"]
+
+### define rules
+rule targets:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/hg38/chr{chrom}.imputed.poly.vcf.gz", chrom=CHROM),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/chr{chrom}.vcf.gz", chrom=CHROM),
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/ukbb-rsid/ukbb-rsid.vcf.gz",
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/InsPIRE_Islets_{analysis}_eQTLs_Nominal_Pvalues.txt.gz", analysis = ANALYSIS),	
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/new.chr{chrom}_{analysis}.hg38", analysis = ANALYSIS, chrom=CHROM),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/chr{chrom}_{analysis}.hg19.bed", analysis = ANALYSIS, chrom=CHROM),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}/chr{chrom}.summ.bed", analysis = ANALYSIS, chrom=CHROM),
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}/eqtl_{analysis}.bed.gz", analysis = ANALYSIS)
+
+
+rule ukbb_rsids:
+	#this rule excludes genotypes from the UKBB reference vcf files to make a smaller vcf file per chromosome
+	input:
+		vcf = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/hg38/chr{{chrom}}.imputed.poly.vcf.gz", chrom=CHROM), #this is a ref data from UKBB with 40k individuals
+	output:
+		ukbbrsid = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/chr{chrom}.vcf.gz"
+	threads: 2
+	resources:
+		time="12:00:00",
+		mem="32G"
+	shell:
+		"""
+		module load Bioinformatics
+		module load Bioinformatics  gcc/10.3.0-k2osx5y
+		module load bcftools/1.12-g4b275e
+		module load samtools/1.13-fwwss5n
+		
+		#-G = drop individual genotype information; -O z = output a compressed VCF file,
+		bcftools view -G -o {output.ukbbrsid} -O z --threads 2 {input.vcf}		
+		#output file is a simplified vcf file of the format "20	518339	rs111689267	T	C	100	PASS	AC=1;AN=80000;AF=1.44e-05;NS=487409"
+		tabix {output.ukbbrsid}
+		"""
+
+rule merge_ukbb:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/chr{chrom}.vcf.gz", chrom=CHROM)
+	output:
+		vcf = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/ukbb-rsid/ukbb-rsid.vcf.gz"
+	threads: 16
+	resources:
+		time="52:00:00",
+		mem="40G"
+	shell:
+		"""
+		module load Bioinformatics
+		module load Bioinformatics  gcc/10.3.0-k2osx5y
+		module load bcftools/1.12-g4b275e
+		module load samtools/1.13-fwwss5n
+
+		bcftools concat -O z -o {output.vcf} -a --threads 16 {input}
+		tabix {output.vcf} 
+		"""
+
+rule liftover:
+	input:
+		eqtl = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/InsPIRE_Islets_{{analysis}}_eQTLs_Nominal_Pvalues.txt.gz", analysis = ANALYSIS)
+	output:
+		allHg38 = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/new.chr{chrom}_{analysis}.hg38",
+		hg19sumStat = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/chr{chrom}_{analysis}.hg19.bed"
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/",
+		chrom = lambda wildcards: wildcards.chrom,
+		analysis = lambda wildcards: wildcards.analysis,
+	shell:
+		"""
+		less {input.eqtl} | tail -n +2 | awk -v c={params.chrom} '{{if($7==c){{print}}}}' > {output.hg19sumStat}
+		awk '{{print $7"\\t"$8-1"\\t"$8"\\t"$6"_"$1}}' {output.hg19sumStat} > {params.outdir}/temp.chr{params.chrom}_{params.analysis}.hg19
+
+		sed -i 's/^/chr/'g {params.outdir}/temp.chr{params.chrom}_{params.analysis}.hg19
+		liftOver {params.outdir}/temp.chr{params.chrom}_{params.analysis}.hg19 ~/tools/UCSC/hg19ToHg38.over.chain.gz {output.allHg38} {params.outdir}/temp.chr{params.chrom}_{params.analysis}.hg38.unmapped
+		"""
+
+rule getNewCoor:
+	#this rule will create a file with the new hg38 coordinates and the summary stats
+        input:
+                ukbb_hg38 = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/ukbb-rsid/ukbb-rsid.vcf.gz",
+                hg19sumStat = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/chr{{chrom}}_{{analysis}}.hg19.bed", chrom=CHROM, analysis = ANALYSIS),
+                hg38coor = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/temp-ukbb/new.chr{{chrom}}_{{analysis}}.hg38", chrom=CHROM)
+        output:
+                "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}/chr{chrom}.summ.bed"
+        params:
+                outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/"
+        shell:
+                """
+                module load R/4.3.1
+                Rscript /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/scripts/getHg38SummStats.R --ukbb_hg38 {input.ukbb_hg38} --summStat {input.hg19sumStat} --bed_hg38 {input.hg38coor} --output {output}
+                """
+
+rule alignGenes:
+	#this rule will keep SNPs within 500kb of gene TSS only, because after liftover some gene and SNP coordinates may change
+	input:
+		summStat = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{{analysis}}/chr{{chrom}}.summ.bed", chrom=CHROM, analysis = ANALYSIS),
+		geneInfo = "/scratch/scjp_root/scjp99/vthihong/genome/exonGeneInfoGRCh38.p14.txt"
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}/chr{chrom}.summAligned.bed"	
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/",
+		analysis = lambda wildcards: wildcards.analysis	
+	shell:
+		"""
+		module load R/4.3.1
+		echo -e "#snp_chrom\tsnp_start\tsnp_end\tSNP\tREF\tALT\teffect_allele\tother_allele\tGeneID\tExonsID\tTSS\tDistanceToGene\tFreqREF\tFreqALT\tPvalue\tSlope\tLead\tT_stat\tSE\tmultiply" > {params.outdir}/eqtl_{params.analysis}/header_Exons_1
+		echo -e "#snp_chrom\tsnp_start\tsnp_end\tSNP\tREF\tALT\teffect_allele\tother_allele\tGeneID\tTSS\tDistanceToGene\tFreqREF\tFreqALT\tPvalue\tSlope\tLead\tT_stat\tSE\tmultiply" > {params.outdir}/eqtl_{params.analysis}/header_Gene_1
+		Rscript /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/scripts/checkGeneCoor.R --summStat {input.summStat} --geneInfo {input.geneInfo} --header {params.outdir}/eqtl_{params.analysis}/header_{params.analysis}_1 --output {output}
+		"""
+
+rule splitGene:
+	#this rule gives per-feature (e.g., per exon) variants and summary stats
+	input:
+		summ = expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{{analysis}}/chr{{chrom}}.summAligned.bed", analysis = ANALYSIS, chrom=CHROM),
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}_indexed/chr{chrom}.tmp"
+	params:
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/",
+		analysis = lambda wildcards: wildcards.analysis
+	shell:
+		"""
+		echo -e "#snp_chrom\tsnp_start\tsnp_end\tSNP\tREF\tALT\teffect_allele\tother_allele\tGeneID\tExonsID\tTSS\tDistanceToGene\tFreqREF\tFreqALT\tPvalue\tSlope\tLead\tT_stat\tSE\tmultiply\tGeneStableID\tgeneStart\tgeneStop\tgene\tGeneStableIDversion" > {params.outdir}/eqtl_{params.analysis}/header_Exons
+		echo -e "#snp_chrom\tsnp_start\tsnp_end\tSNP\tREF\tALT\teffect_allele\tother_allele\tGeneID\tTSS\tDistanceToGene\tFreqREF\tFreqALT\tPvalue\tSlope\tLead\tT_stat\tSE\tmultiply\tGeneStableID\tgeneStart\tgeneStop\tgene\tGeneStableIDversion" > {params.outdir}/eqtl_{params.analysis}/header_Gene
+		module load R/4.3.1
+		Rscript /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/scripts/split_Exon.R --header {params.outdir}/eqtl_{params.analysis}/header_{params.analysis} --summ {input.summ} --outdir {params.outdir}/eqtl_{params.analysis}_indexed/
+		touch {output}
+		"""
+	
+rule getSummStatEqtl:
+	#this rule merge variants and summ. stats across all chromosomes and index the file
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}/chr{chrom}.summAligned.bed", analysis = ANALYSIS, chrom=CHROM)
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}/eqtl_{analysis}.bed.gz"
+	params:
+		analysis = lambda wildcards: wildcards.analysis,
+		outdir = "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/eqtl_{analysis}"
+	shell:
+		"""
+		module load Bioinformatics
+		module load Bioinformatics  gcc/10.3.0-k2osx5y
+		module load bcftools/1.12-g4b275e
+		module load samtools/1.13-fwwss5n
+
+		cat {params.outdir}/header_{params.analysis} {input} > {params.outdir}/eqtl_{params.analysis}.bed
+		bgzip {params.outdir}/eqtl_{params.analysis}.bed -@ 2
+		tabix --zero-based --sequence 1 --begin 2 --end 3 --comment=# {output}
+		"""
