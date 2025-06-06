@@ -25,7 +25,7 @@ plot.set = function(setlist, trait, input, title, marker = NULL){
         p = ggplot(input, aes(x=snp_end, y=-log10(pval))) +
             geom_point(aes(color=set))
     } else {
-        p = ggplot(input, aes(x=snp_end, y=-log10(p_nominal))) +
+        p = ggplot(input, aes(x=snp_end, y=-log10(pval_nominal))) +
             geom_point(aes(color=set))
     }
 
@@ -186,7 +186,8 @@ if (! is.null(opts$exon_id)){
     }
 }
 
-colnames(input2)[which(colnames(input2) %in% c("SNP", "Pvalue", "Slope", "SE") == TRUE)] <- c("rsid", "p_nominal", "beta", "se")
+#colnames(input2)[which(colnames(input2) %in% c("SNP", "Pvalue", "Slope", "SE") == TRUE)] <- c("rsid", "p_nominal", "beta", "se")
+colnames(input2)[which(colnames(input2) %in% c("SNP") == TRUE)] <- c("rsid")
 
 input2 <- distinct(input2)
 print(dim(input2))
@@ -218,7 +219,13 @@ if  (nrow(duplicated.input) > 0){
 
 print("using input2$snp as rownames")
 rownames(input2) = input2$snp
+input2 <- input2[!is.na(input2[t2.se]),]
+input2 <- input2[!is.na(input2[t2.p]),]
+input2 <- input2[!is.na(input2[t2.beta]),]
+min(input2[t2.p])
 input2 = get_var(input2, "trait2", betacol = t2.beta, secol = t2.se, pcol = t2.p)
+input2 <- input2[!is.na(input2$trait2_z),]
+input2 <- input2[!is.na(input2$trait2_var),]
 
 ## update input df - in case some variants were missing from the ld matrix.
 snplist = intersect(snps, input2$snp)
@@ -251,10 +258,10 @@ diagnostic_s_gwas = estimate_s_rss(input2$trait2_z, t2.ld)
 print(glue("s = {diagnostic_s_gwas}"))
 
 ## plot diagnostic
-png(glue("{prefix}.s.png"), height=4, width=4, units="in", res=150)
-condz_in = kriging_rss(input2$trait2_z, t2.ld)
-print(condz_in$plot)
-dev.off()
+#png(glue("{prefix}.s.png"), height=4, width=4, units="in", res=150)
+#condz_in = kriging_rss(input2$trait2_z, t2.ld)
+#print(condz_in$plot)
+#dev.off()
 
 ## if diagnostic s is very bad, set max signals to 1
 if(diagnostic_s_gwas > opts$s_threshold){
@@ -339,6 +346,7 @@ if (! is.null(opts$marker)){
 } else {
     marker.id = NULL
 }
+
 title = glue("{prefix}\ns = {diagnostic_s_gwas}, min_corr = {min_abs_corr}\n L = {numbersignals}, coverage = {coverage}\nnsets = {nsets}")
 p1 = plot.set(S2$sets$cs, "eqtl",  input2, title, marker = marker.id)
 
@@ -350,6 +358,87 @@ png(glue("{prefix}.png"), height=6, width=8, units="in", res=150)
 cowplot::plot_grid(p1, p2, align = 'v', ncol = 1, rel_heights = c(0.6, 0.4)) ## display plotpip
 dev.off()
 
+## Select the credible set to use downstream. This can be either that set that contains the intended lead SNP itself or a proxy in high LD with it.
+if (length(S2$sets$cs)>0) {
+    print("There was at least 1 cset identified")
+    drop = c()
+    check.proxy = FALSE
+    stop = FALSE
+    
+    if (!is.null(opts$dropsets_if_not_contain)) {
+        check.match = opts$dropsets_if_not_contain
+        ## see if any sets to drop
+        print(glue("Will remove any sets that don't contain {check.match}"))
+    } else if (!is.null(opts$dropsets_if_no_proxy)) {
+        ## see if each cset either contains the exact SNP or a proxy
+        check.match = opts$marker
+        check.proxy = opts$dropsets_if_no_proxy
+        print(glue("Will look for proxy of lead SNP r2 > {check.proxy}"))
+   
+    } else {
+        stop = TRUE
+        print("no selection option provided, leaving.")
+    }
+
+    print(check.match)
+    
+    if (!stop) {
+        ## see if any sets to drop
+        for (i in seq_along(S2$sets$cs)){
+            cset.snps = gsub("-.*", "", names(S2$sets$cs[[i]]))
+            if (! check.match %in% rownames(ldf)){
+                print(glue("SNP {check.match} didn't occur in the LD matrix. Exit."))
+                break
+            }
+            if (! check.match %in% cset.snps){
+                print(glue("SNP {check.match} not found in set {i}"))
+                if (! check.proxy){
+                    drop = c(drop, i)
+                    print(glue("removing set {i}"))
+                } else {
+                    ## check for proxy
+                    cset.r2 = ldf[check.match, cset.snps]**2
+                    max.cset.r2 = max(cset.r2)
+                    if (max.cset.r2 < check.proxy){
+                        drop = c(drop, i)
+                        print(glue("Max r2 with of marker with cset SNP {max.cset.r2} < required {check.proxy}; removing set {i}"))
+                    } else {
+                        print(glue(("Max r2 with of marker with cset SNP {max.cset.r2} >= required {check.proxy}; retaining set {i}")))
+                    }
+                }
+            } else {
+                print(glue("SNP {check.match} found in set {i}"))
+            }
+        }
+    }
+    
+    ## drop all such sets
+    if (length(drop)>0){
+        print(glue("Started with number of credible sets = {length(S2$sets$cs)}"))
+        S2 = susie_dropsets(S2, drop)
+        print(glue("Final number of selected credible sets = {length(S2$sets$cs)}"))
+    }
+    
+    n_selected_sets = length(S2$sets$cs)
+    len_selected_sets = paste(lapply(S2$sets$cs, function(i){length(i)}), collapse = ',')
+
+    ## if any selected csets remain, save the .selected.Rda file and plot the selected gwas, pip and lbf
+    ## also save the respective coloc results
+    if (n_selected_sets > 0){
+        fname = glue("{prefix}.selected.Rda")
+        save(S2, file = fname)
+
+        ## plot lbf
+        idx = S2$sets$cs_index
+        isnps = colnames(S2$lbf_variable)
+        bf = S2$lbf_variable[idx, isnps, drop=FALSE]
+        p3 = plot.result(t(bf)[,1], "lbf", input2, marker = marker.id)
+
+        png(glue("{prefix}.selected.png"), height=9, width=8, units="in", res=150)
+        cowplot::plot_grid(plotlist = list(p1, p2, p3), align = 'v', ncol = 1, nrow=3) ## display plotpip
+        dev.off()
+    }
+} 
 
 
 results = c(results, glue("{prefix}\t{diagnostic_s_gwas}\t{min_abs_corr}\t{numbersignals}\t{coverage}\t{nsets}\t{lensets}\t{n_selected_sets}\t{len_selected_sets}"))

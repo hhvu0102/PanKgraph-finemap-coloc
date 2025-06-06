@@ -351,5 +351,5 @@ cowplot::plot_grid(p1, p2, align = 'v', ncol = 1, rel_heights = c(0.6, 0.4)) ## 
 dev.off()
 
 
-results = c(results, glue("{prefix}\t{diagnostic_s_gwas}\t{min_abs_corr}\t{numbersignals}\t{coverage}\t{nsets}\t{lensets}"))
+results = c(results, glue("{prefix}\t{diagnostic_s_gwas}\t{min_abs_corr}\t{numbersignals}\t{coverage}\t{nsets}\t{lensets}\t{n_selected_sets}\t{len_selected_sets}"))
 writeLines(results, glue("{prefix}.results.tsv"))

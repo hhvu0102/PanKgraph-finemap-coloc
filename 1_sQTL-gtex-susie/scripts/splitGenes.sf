@@ -1,0 +1,21 @@
+CHROM = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"]
+ANALYSIS = ["EUR"] # ["all", "EUR"]
+
+rule targets:
+	input:
+		expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/3_t1d-eQTL_GTEx-coloc/results/GTEx_{analysis}_sQTL/gtex_indexed/chr{chrom}.tmp", chrom = CHROM, analysis = ANALYSIS)
+
+
+rule getHg38SummStats:
+	input:
+		ukbb="/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/2_t1d-eQTL-coloc/results/hg38/ukbb-rsid/ukbb-rsid.vcf.gz",
+		summStat=expand("/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/3_t1d-eQTL_GTEx-coloc/results/GTEx_{analysis}_sQTL/gtex_indexed/chr{{chrom}}.bed", chrom = CHROM, analysis = ANALYSIS),
+		geneInfo="/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/0_data/GTEx_EUR_sQTL/Pancreas.v8.sgenes.txt.gz"
+	output:
+		"/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/3_t1d-eQTL_GTEx-coloc/results/GTEx_{analysis}_sQTL/gtex_indexed/chr{chrom}.tmp"
+	shell:
+		"""
+		module load R/4.3.1
+		Rscript /scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/3_t1d-eQTL_GTEx-coloc/scripts/getHg38SummStats_sQTL.R --ukbb_hg38 {input.ukbb} --summStat {input.summStat} --geneInfo {input.geneInfo} --outdir "/scratch/scjp_root/scjp99/vthihong/2_PanKBase/colocGWAS_T1D/3_t1d-eQTL_GTEx-coloc/results/GTEx_EUR_sQTL/gtex_indexed/"
+		touch {output}
+		"""
